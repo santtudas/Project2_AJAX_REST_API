@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header>
+    <h1>Movie App</h1>
+  </header>
+
+  <main>
+    <section class="controls">
+      <select id="theatreSelect">
+        <option value="" disabled selected>Select a theater</option>
+        <!-- Options will be dynamically added here by JavaScript -->
+      </select>
+      <select id="calendarSelect">
+        <option value="" disabled selected>Select a date</option>
+        <!-- Options will be dynamically added here by JavaScript -->
+      </select>
+    </section>
+
+    <section class="movie-display">
+      <div id="movieContainer">
+        <!-- Movie information will be dynamically added here -->
+      </div>
+    </section>
+  </main>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
