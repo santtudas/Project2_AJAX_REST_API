@@ -59,9 +59,9 @@ function populateDateDropdown(xmlDoc) {
     let dates = new Set(); // Used set to avoid duplicates
     
     // Loop through each show
-    let movies = xmlDoc.querySelector("Show");
+    let movies = xmlDoc.querySelectorAll("Show");
     for (let i = 0; i < movies.length; i++) {
-        let dateTime = movies[i].querySelector("dttmShowStart")[0].textContent; // Get the date-time string
+        let dateTime = movies[i].querySelectorAll("dttmShowStart")[0].textContent; // Get the date-time string
         let formattedDate = dateTime.split("T")[0]; // Extract just the date part (yyyy-mm-dd)
         // Convert to dd.mm.yyyy format
         let parts = formattedDate.split("-");
