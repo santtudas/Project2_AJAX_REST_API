@@ -44,7 +44,7 @@ function populateTheaterDropdown(xmlDoc) {
         let theaterName = movies[i].querySelectorAll("Theatre")[0].textContent;
         theaters.add(theaterName);
     }
-    // Add theater names to dropdown
+    // Add names
     theaters.forEach(theater => {
         let option = document.createElement("option");
         option.value = theater;
@@ -59,9 +59,9 @@ function populateDateDropdown(xmlDoc) {
     let dates = new Set(); // Used set to avoid duplicates
     
     // Loop through each show
-    let movies = xmlDoc.getElementsByTagName("Show");
+    let movies = xmlDoc.querySelector("Show");
     for (let i = 0; i < movies.length; i++) {
-        let dateTime = movies[i].getElementsByTagName("dttmShowStart")[0].textContent; // Get the date-time string
+        let dateTime = movies[i].querySelector("dttmShowStart")[0].textContent; // Get the date-time string
         let formattedDate = dateTime.split("T")[0]; // Extract just the date part (yyyy-mm-dd)
         // Convert to dd.mm.yyyy format
         let parts = formattedDate.split("-");
