@@ -30,14 +30,14 @@ xmlhttp.onreadystatechange = function() {
 };
 
 
-// Insert theater names to dropdown
+// Add theater names to dropdown
 function populateTheaterDropdown(xmlDoc) {
     let theaterSelect = document.querySelector("#theatreSelect");
     let theaters = new Set(); // Use set to avoid duplicates
     // Go through theater names
-    let movies = xmlDoc.getElementsByTagName("Show");
+    let movies = xmlDoc.querySelectorAll("Show");
     for (let i = 0; i < movies.length; i++) {
-        let theaterName = movies[i].getElementsByTagName("Theatre")[0].textContent;
+        let theaterName = movies[i].querySelectorAll("Theatre")[0].textContent;
         theaters.add(theaterName);
     }
     // Add theater names to dropdown
@@ -52,9 +52,9 @@ function populateTheaterDropdown(xmlDoc) {
 // DATES function
 function populateDateDropdown(xmlDoc) {
     let calendarSelect = document.querySelector("#calendarSelect");
-    let dates = new Set(); // Use set to avoid duplicates
+    let dates = new Set(); // Used set to avoid duplicates
     
-    // Loop through each show and collect dates
+    // Loop through each show
     let movies = xmlDoc.getElementsByTagName("Show");
     for (let i = 0; i < movies.length; i++) {
         let dateTime = movies[i].getElementsByTagName("dttmShowStart")[0].textContent; // Get the date-time string
@@ -67,9 +67,9 @@ function populateDateDropdown(xmlDoc) {
     // Add dates in the dropdown
     dates.forEach(date => {
         let option = document.createElement("option");
-        option.value = date; // You can set the value to the formatted date
+        option.value = date;
         option.textContent = date; // Display date in the dropdown
-        calendarSelect.appendChild(option); // Append to the calendarSelect
+        calendarSelect.appendChild(option); // Append to calendarSelect
     });
 }
 
@@ -77,9 +77,9 @@ function populateDateDropdown(xmlDoc) {
 
 function displayMovies(xmlDoc, selectedTheater, selectedDate) {
     let movieContainer = document.querySelector("#movieContainer");
-    movieContainer.innerHTML = ""; // Clear previous content
+    movieContainer.innerHTML = ""; // Epmty previous content
 
-    let movies = xmlDoc.getElementsByTagName("Show");
+    let movies = xmlDoc.querySelectorAll("Show");
 
     for (let i = 0; i < movies.length; i++) {
         let show = movies[i];
@@ -93,10 +93,10 @@ function displayMovies(xmlDoc, selectedTheater, selectedDate) {
         let formattedShowtime = formatShowtime(showtime);
 
         // Extract the date part from the showtime
-        let showDate = showtime.split("T")[0]; // Extract just the date part (yyyy-mm-dd)
-        let formattedShowDate = `${showDate.split("-")[2]}.${showDate.split("-")[1]}.${showDate.split("-")[0]}`; // Convert to dd.mm.yyyy format
+        let showDate = showtime.split("T")[0]; // Extract the date part (yyyy-mm-dd)
+        let formattedShowDate = `${showDate.split("-")[2]}.${showDate.split("-")[1]}.${showDate.split("-")[0]}`; // Convert to dd-mm-yyyy format
 
-        // Filter: Display only movies matching the selected theater and date
+        // Display movies matching the selected theater and date
         if ((!selectedTheater || selectedTheater === theater) &&
             (!selectedDate || selectedDate === formattedShowDate)) {
             let movieDiv = document.createElement("div");
