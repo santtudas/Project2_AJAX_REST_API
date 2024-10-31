@@ -33,7 +33,6 @@ xmlhttp.onerror = function() {
     movieContainer.innerHTML = "<p>Failed to load movies. Please try again later.</p>";
 };
 
-
 // Add theater names to dropdown
 function populateTheaterDropdown(xmlDoc) {
     let theaterSelect = document.querySelector("#theatreSelect");
@@ -78,7 +77,6 @@ function populateDateDropdown(xmlDoc) {
 }
 
 // Function to display movies based on selected theater and date
-
 function displayMovies(xmlDoc, selectedTheater, selectedDate) {
     let movieContainer = document.querySelector("#movieContainer");
     movieContainer.innerHTML = ""; // Epmty previous content
@@ -119,14 +117,6 @@ function displayMovies(xmlDoc, selectedTheater, selectedDate) {
             movieContainer.appendChild(movieDiv);
         }
     }
-}
-
-function onDateChange(event) {
-    let selectedDate = event.target.value; // Selected date
-    let selectedTheater = document.querySelector("#theatreSelect").value; // Selected theater
-
-    // Call displayMovies with the selected theater and date
-    displayMovies(xmlDoc, selectedTheater, selectedDate);
 }
 
 function formatShowtime(showtime) {
