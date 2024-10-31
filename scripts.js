@@ -1,33 +1,46 @@
+let area = "1014";
+let nrOfDays = 6;
+
+let url = `https://www.finnkino.fi/xml/Schedule/?area=${area}&nrOfDays=${nrOfDays}`;
+
 let xmlhttp = new XMLHttpRequest();
-xmlhttp.open("GET", "https://www.finnkino.fi/xml/Schedule/", true);
+xmlhttp.open("GET", url, true);
 xmlhttp.send();
 
 xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
         let xmlDoc = xmlhttp.responseXML;
-        populateTheaterDropdown(xmlDoc); // Populate dropdown on load
-        displayMovies(xmlDoc, ""); // Display all movies initially (no filter)
-        
-        // Add event listener to filter movies based on dropdown selection
+        populateTheaterDropdown(xmlDoc);
+        populateDateDropdown(xmlDoc);
+        displayMovies(xmlDoc, ""); // Display all movies on load
+
+        // Add event listeners to dropdowns for filterring 
         document.querySelector("#theatreSelect").addEventListener("change", function() {
-            displayMovies(xmlDoc, this.value); // Filter movies based on selected theater
+            let selectedTheater = this.value;
+            let selectedDate = document.querySelector("#calendarSelect").value;
+            displayMovies(xmlDoc, selectedTheater, selectedDate);
+        });
+
+        document.querySelector("#calendarSelect").addEventListener("change", function(event) {
+            let selectedDate = event.target.value;
+            let selectedTheater = document.querySelector("#theatreSelect").value;
+            displayMovies(xmlDoc, selectedTheater, selectedDate);
         });
     }
 };
 
-// Step 1: Populate the Theater Dropdown with unique theater names
+
+// Insert theater names to dropdown
 function populateTheaterDropdown(xmlDoc) {
     let theaterSelect = document.querySelector("#theatreSelect");
-    let theaters = new Set(); // Use a Set to store unique theater names
-
-    // Loop through each show and collect unique theater names
+    let theaters = new Set(); // Use set to avoid duplicates
+    // Go through theater names
     let movies = xmlDoc.getElementsByTagName("Show");
     for (let i = 0; i < movies.length; i++) {
         let theaterName = movies[i].getElementsByTagName("Theatre")[0].textContent;
         theaters.add(theaterName);
     }
-
-    // Add each unique theater name as an option in the dropdown
+    // Add theater names to dropdown
     theaters.forEach(theater => {
         let option = document.createElement("option");
         option.value = theater;
@@ -36,8 +49,33 @@ function populateTheaterDropdown(xmlDoc) {
     });
 }
 
-// Step 2: Display Movies based on selected theater (or all if no filter)
-function displayMovies(xmlDoc, selectedTheater) {
+// DATES function
+function populateDateDropdown(xmlDoc) {
+    let calendarSelect = document.querySelector("#calendarSelect");
+    let dates = new Set(); // Use set to avoid duplicates
+    
+    // Loop through each show and collect dates
+    let movies = xmlDoc.getElementsByTagName("Show");
+    for (let i = 0; i < movies.length; i++) {
+        let dateTime = movies[i].getElementsByTagName("dttmShowStart")[0].textContent; // Get the date-time string
+        let formattedDate = dateTime.split("T")[0]; // Extract just the date part (yyyy-mm-dd)
+        // Convert to dd.mm.yyyy format
+        let parts = formattedDate.split("-");
+        let displayDate = `${parts[2]}.${parts[1]}.${parts[0]}`;
+        dates.add(displayDate); // Add formatted date to set
+    }
+    // Add dates in the dropdown
+    dates.forEach(date => {
+        let option = document.createElement("option");
+        option.value = date; // You can set the value to the formatted date
+        option.textContent = date; // Display date in the dropdown
+        calendarSelect.appendChild(option); // Append to the calendarSelect
+    });
+}
+
+// Function to display movies based on selected theater and date
+
+function displayMovies(xmlDoc, selectedTheater, selectedDate) {
     let movieContainer = document.querySelector("#movieContainer");
     movieContainer.innerHTML = ""; // Clear previous content
 
@@ -45,23 +83,28 @@ function displayMovies(xmlDoc, selectedTheater) {
 
     for (let i = 0; i < movies.length; i++) {
         let show = movies[i];
-        let title = show.getElementsByTagName("Title")[0].textContent;
-        let theater = show.getElementsByTagName("Theatre")[0].textContent;
-        let showtime = show.getElementsByTagName("dttmShowStart")[0].textContent;
-        let duration = show.getElementsByTagName("LengthInMinutes")[0].textContent;
-        let rating = show.getElementsByTagName("Rating")[0].textContent;
-        let imageUrl = show.getElementsByTagName("EventSmallImagePortrait")[0].textContent;
-        let ratingImg = show.getElementsByTagName("RatingImageUrl")[0].textContent;
+        let title = show.querySelector("Title").textContent;
+        let theater = show.querySelector("Theatre").textContent;
+        let showtime = show.querySelector("dttmShowStart").textContent;
+        let duration = show.querySelector("LengthInMinutes").textContent;
+        let rating = show.querySelector("Rating").textContent;
+        let imageUrl = show.querySelector("EventSmallImagePortrait").textContent;
+        let ratingImg = show.querySelector("RatingImageUrl").textContent;
         let formattedShowtime = formatShowtime(showtime);
 
-        // Filter: Display only movies matching the selected theater, or all if no filter
-        if (!selectedTheater || selectedTheater === theater) {
+        // Extract the date part from the showtime
+        let showDate = showtime.split("T")[0]; // Extract just the date part (yyyy-mm-dd)
+        let formattedShowDate = `${showDate.split("-")[2]}.${showDate.split("-")[1]}.${showDate.split("-")[0]}`; // Convert to dd.mm.yyyy format
+
+        // Filter: Display only movies matching the selected theater and date
+        if ((!selectedTheater || selectedTheater === theater) &&
+            (!selectedDate || selectedDate === formattedShowDate)) {
             let movieDiv = document.createElement("div");
             movieDiv.classList.add("movie");
 
             // Create the inner HTML structure
             movieDiv.innerHTML = `
-                <img src="${imageUrl}" alt="Movie Poster" class="moviePoster">
+                <img src="${imageUrl}" alt="Movie Poster" class="moviePoster" loading="lazy">
                 <h4>${title}</h4>
                 <p><strong>Theater:</strong> ${theater}</p>
                 <p><strong>Showtime:</strong> ${formattedShowtime}</p>
@@ -69,23 +112,32 @@ function displayMovies(xmlDoc, selectedTheater) {
                 <img src="${ratingImg}" alt="${rating}" class="ageRating">
                 <hr>
             `;
-
             movieContainer.appendChild(movieDiv);
         }
     }
 }
 
-function formatShowtime(showtime) {
-    let date = new Date(showtime);
-    
-    // Extract date components
-    let day = String(date.getDate()).padStart(2, '0');
-    let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    let year = date.getFullYear();
+function onDateChange(event) {
+    let selectedDate = event.target.value; // Selected date
+    let selectedTheater = document.querySelector("#theatreSelect").value; // Selected theater
 
-    // Extract time components
-    let hours = String(date.getHours()).padStart(2, '0');
-    let minutes = String(date.getMinutes()).padStart(2, '0');
-    // Combine into the desired format
-    return `${day}.${month}.${year} ${hours}:${minutes}`;
+    // Call displayMovies with the selected theater and date
+    displayMovies(xmlDoc, selectedTheater, selectedDate);
+}
+
+function formatShowtime(showtime) {
+    // Get the date part (yyyy-mm-dd)
+    let formattedDate = showtime.split("T")[0]; 
+
+    // Convert format
+    let parts = formattedDate.split("-");
+    let displayDate = `${parts[2]}.${parts[1]}.${parts[0]}`;
+
+    // Extract time 
+    let timeParts = showtime.split("T")[1].split(":"); // Split to get the time part
+    let hours = timeParts[0]; // Get hours
+    let minutes = timeParts[1]; // Get minutes
+
+    // Combine date and time 
+    return `${displayDate} ${hours}:${minutes}`;
 }

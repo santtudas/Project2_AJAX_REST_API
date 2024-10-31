@@ -11,8 +11,8 @@ main {
   padding: 0px 50px;
 }
 
-h1, h2, h3 {
-  color: white;
+h1 {
+  color: black;
   padding-left: 10px;
 }
 
@@ -52,9 +52,8 @@ select {
   margin-left: 16px;
 }
 
-
 header {
-  background-color: grey;
+  background-color: #FFC800;
   width: 100%;
   padding: 1px 2px;
 }
