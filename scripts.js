@@ -29,6 +29,10 @@ xmlhttp.onreadystatechange = function() {
     }
 };
 
+xmlhttp.onerror = function() {
+    movieContainer.innerHTML = "<p>Failed to load movies. Please try again later.</p>";
+};
+
 
 // Add theater names to dropdown
 function populateTheaterDropdown(xmlDoc) {
